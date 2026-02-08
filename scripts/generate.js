@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, "..");
+const PUBLIC_ROOT = path.join(ROOT, "public");
 const API_URL = "https://chaturbate.com/affiliates/api/onlinerooms/?format=json&wm=XhJGW";
 const CANONICAL_DOMAIN = "https://www.chaturbategermany.live";
 
@@ -336,12 +337,17 @@ async function fetchJson(url) {
 }
 
 async function main() {
-  ensureDir(path.join(ROOT, "assets"));
-  ensureDir(path.join(ROOT, "models"));
-  ensureDir(path.join(ROOT, "tags"));
+  ensureDir(path.join(PUBLIC_ROOT, "assets"));
+  ensureDir(path.join(PUBLIC_ROOT, "models"));
+  ensureDir(path.join(PUBLIC_ROOT, "tags"));
   const homepageText = "Chaturbate ist ein interaktiver Live-Videochat für Erwachsene, in dem Performer in Echtzeit streamen. Nutzer können Shows entdecken, mit Modellen interagieren und eine vielfältige Auswahl an Kategorien genießen.";
   const homeHtml = homepage({ descriptionText: homepageText });
-  writeFileSafe(path.join(ROOT, "index.html"), homeHtml);
+  writeFileSafe(path.join(PUBLIC_ROOT, "index.html"), homeHtml);
+  const cssSrc = path.join(ROOT, "assets", "style.css");
+  if (fs.existsSync(cssSrc)) {
+    const cssDest = path.join(PUBLIC_ROOT, "assets", "style.css");
+    writeFileSafe(cssDest, fs.readFileSync(cssSrc, "utf8"));
+  }
   const data = await fetchJson(API_URL);
   const rooms = Array.isArray(data.rooms) ? data.rooms : Array.isArray(data) ? data : [];
   const urls = ["/", "/tags/"];
@@ -350,7 +356,7 @@ async function main() {
     const username = room.username || room.name;
     if (!username) continue;
     const html = modelPage(room);
-    const modelDir = path.join(ROOT, "models", username);
+    const modelDir = path.join(PUBLIC_ROOT, "models", username);
     writeFileSafe(path.join(modelDir, "index.html"), html);
     urls.push(`/models/${encodeURIComponent(username)}/`);
     const tags = Array.isArray(room.tags) ? room.tags : [];
@@ -363,15 +369,15 @@ async function main() {
   }
   const tagsList = [...tagMap.values()].sort((a, b) => a.name.localeCompare(b.name, "de"));
   const tagsIndex = tagsIndexPage(tagsList.map(t => ({ name: t.name, count: t.rooms.length })));
-  writeFileSafe(path.join(ROOT, "tags", "index.html"), tagsIndex);
+  writeFileSafe(path.join(PUBLIC_ROOT, "tags", "index.html"), tagsIndex);
   for (const entry of tagsList) {
-    const dir = path.join(ROOT, "tags", slugify(entry.name));
+    const dir = path.join(PUBLIC_ROOT, "tags", slugify(entry.name));
     const html = tagPage(entry.name, entry.rooms);
     writeFileSafe(path.join(dir, "index.html"), html);
     urls.push(`/tags/${encodeURIComponent(slugify(entry.name))}/`);
   }
-  writeFileSafe(path.join(ROOT, "robots.txt"), robotsTxt());
-  writeFileSafe(path.join(ROOT, "sitemap.xml"), sitemapXml(urls));
+  writeFileSafe(path.join(PUBLIC_ROOT, "robots.txt"), robotsTxt());
+  writeFileSafe(path.join(PUBLIC_ROOT, "sitemap.xml"), sitemapXml(urls));
   console.log("Generated pages:", urls.length, "URLs");
 }
 
