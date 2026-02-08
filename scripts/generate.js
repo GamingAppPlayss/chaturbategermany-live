@@ -34,6 +34,24 @@ function escapeHtml(s) {
     .replace(/'/g, "&#39;");
 }
 
+function serverRoomCard(room) {
+  const username = room.username || room.name || "";
+  const displayName = room.display_name || username;
+  const pathHref = `/models/${encodeURIComponent(username)}/`;
+  const tags = Array.isArray(room.tags) ? room.tags : [];
+  const tagHtml = tags.slice(0, 5).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+  return `
+    <div class="grid-item">
+      <article class="card">
+        <div class="card-body">
+          <h3><a href="${pathHref}">${escapeHtml(displayName)}</a></h3>
+          <div class="tags">${tagHtml}</div>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
 function metaHead({ title, description, canonical, ogType = "website", jsonLd = "" }) {
   const canonicalUrl = canonical.startsWith("http") ? canonical : CANONICAL_DOMAIN + canonical;
   return `
@@ -95,7 +113,7 @@ function pageShell({ lang = "de", head, body }) {
   `.trim();
 }
 
-function homepage({ descriptionText }) {
+function homepage({ descriptionText, initialRooms = [] }) {
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -110,11 +128,12 @@ function homepage({ descriptionText }) {
     ogType: "website",
     jsonLd,
   });
+  const initialGrid = initialRooms.slice(0, 40).map(serverRoomCard).join("");
   const body = `
     ${headerNav()}
     <main class="container">
       <h1>Best Chaturbate Models</h1>
-      <div id="models-grid" class="grid"></div>
+      <div id="models-grid" class="grid">${initialGrid}</div>
       <div class="actions">
         <button id="loadMore">Mehr laden</button>
       </div>
@@ -125,10 +144,10 @@ function homepage({ descriptionText }) {
     </main>
     ${footer()}
     <script>
-      const API_URL = "${API_URL}";
+      const DATA_URL = "/data/rooms.json";
       const PAGE_SIZE = 40;
       let allRooms = [];
-      let rendered = 0;
+      let rendered = ${initialRooms.length};
       function roomCard(room) {
         const username = room.username || room.name || "";
         const displayName = room.display_name || username;
@@ -158,13 +177,15 @@ function homepage({ descriptionText }) {
           document.getElementById("loadMore").disabled = true;
         }
       }
-      fetch(API_URL).then(r => r.json()).then(data => {
+      fetch(DATA_URL).then(r => r.json()).then(data => {
         const rooms = data.rooms || data || [];
         allRooms = rooms;
-        renderMore();
+        if (rendered < allRooms.length) {
+          document.getElementById("loadMore").disabled = false;
+        } else {
+          document.getElementById("loadMore").disabled = true;
+        }
       }).catch(() => {
-        const target = document.getElementById("models-grid");
-        target.innerHTML = "<p>Fehler beim Laden der Daten.</p>";
         document.getElementById("loadMore").disabled = true;
       });
       document.getElementById("loadMore").addEventListener("click", renderMore);
@@ -340,16 +361,18 @@ async function main() {
   ensureDir(path.join(PUBLIC_ROOT, "assets"));
   ensureDir(path.join(PUBLIC_ROOT, "models"));
   ensureDir(path.join(PUBLIC_ROOT, "tags"));
+  ensureDir(path.join(PUBLIC_ROOT, "data"));
   const homepageText = "Chaturbate ist ein interaktiver Live-Videochat für Erwachsene, in dem Performer in Echtzeit streamen. Nutzer können Shows entdecken, mit Modellen interagieren und eine vielfältige Auswahl an Kategorien genießen.";
-  const homeHtml = homepage({ descriptionText: homepageText });
+  const data = await fetchJson(API_URL);
+  const rooms = Array.isArray(data.rooms) ? data.rooms : Array.isArray(data) ? data : [];
+  writeFileSafe(path.join(PUBLIC_ROOT, "data", "rooms.json"), JSON.stringify({ rooms }, null, 2));
+  const homeHtml = homepage({ descriptionText: homepageText, initialRooms: rooms.slice(0, 40) });
   writeFileSafe(path.join(PUBLIC_ROOT, "index.html"), homeHtml);
   const cssSrc = path.join(ROOT, "assets", "style.css");
   if (fs.existsSync(cssSrc)) {
     const cssDest = path.join(PUBLIC_ROOT, "assets", "style.css");
     writeFileSafe(cssDest, fs.readFileSync(cssSrc, "utf8"));
   }
-  const data = await fetchJson(API_URL);
-  const rooms = Array.isArray(data.rooms) ? data.rooms : Array.isArray(data) ? data : [];
   const urls = ["/", "/tags/"];
   const tagMap = new Map();
   for (const room of rooms) {
