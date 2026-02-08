@@ -18,14 +18,21 @@ h2{font-size:22px;margin:24px 0 12px}
 @media(max-width:480px){.grid{grid-template-columns:repeat(1,1fr)}}
 .grid-item{background:#141820;border:1px solid #232733;border-radius:8px;overflow:hidden}
 .card{display:flex;flex-direction:column;height:100%}
+.card-media{display:block;position:relative;background:#0b0d10}
+.card-media img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
 .card-body{padding:12px}
 .card h3{margin:0 0 8px;font-size:18px}
 .tag{display:inline-block;background:#232733;color:#a8b0bd;border-radius:16px;padding:4px 10px;margin:2px;font-size:12px}
 .actions{display:flex;justify-content:center;margin:20px 0}
 button{background:#61dafb;color:#0f1115;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:600}
 button:disabled{background:#385a64;color:#8fbfcd;cursor:not-allowed}
+.btn{display:inline-block;background:#61dafb;color:#0f1115;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700}
+.btn:hover{text-decoration:none;filter:brightness(1.05)}
+.cta{margin-top:10px}
 .about{margin-top:32px;background:#141820;border:1px solid #232733;border-radius:8px;padding:16px}
 .lead{font-size:16px;color:#d7dce4}
+.profile{display:flex;align-items:center;gap:16px;margin:12px 0 16px}
+.avatar{width:96px;height:96px;border-radius:8px;object-fit:cover;border:1px solid #232733;background:#0b0d10}
 .player{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;border:1px solid #232733;background:#000;margin-bottom:16px}
 .player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 .data-table{display:grid;grid-template-columns:1fr 2fr;border:1px solid #232733;border-radius:8px;overflow:hidden}

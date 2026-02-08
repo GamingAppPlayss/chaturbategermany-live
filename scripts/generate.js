@@ -40,12 +40,20 @@ function serverRoomCard(room) {
   const pathHref = `/models/${encodeURIComponent(username)}/`;
   const tags = Array.isArray(room.tags) ? room.tags : [];
   const tagHtml = tags.slice(0, 5).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+  const img = room.image_url || room.img || room.image || room.thumbnail_url || `https://chaturbate.com/in/roomimage/${encodeURIComponent(username)}.jpg`;
+  const chatUrl = `https://chaturbate.com/in/?track=default&room=${encodeURIComponent(username)}&wm=XhJGW`;
   return `
     <div class="grid-item">
       <article class="card">
+        <a class="card-media" href="${pathHref}">
+          <img src="${img}" alt="${escapeHtml(displayName)}">
+        </a>
         <div class="card-body">
           <h3><a href="${pathHref}">${escapeHtml(displayName)}</a></h3>
           <div class="tags">${tagHtml}</div>
+          <div class="cta">
+            <a class="btn" href="${chatUrl}" target="_blank" rel="noopener">Jetzt chatten</a>
+          </div>
         </div>
       </article>
     </div>
@@ -154,11 +162,19 @@ function homepage({ descriptionText, initialRooms = [] }) {
         const path = "/models/" + encodeURIComponent(username) + "/";
         const tags = Array.isArray(room.tags) ? room.tags : [];
         const tagHtml = tags.slice(0, 5).map(t => "<span class=\\"tag\\">" + t + "</span>").join("");
+        const img = room.image_url || room.img || room.image || room.thumbnail_url || "https://chaturbate.com/in/roomimage/" + encodeURIComponent(username) + ".jpg";
+        const chatUrl = "https://chaturbate.com/in/?track=default&room=" + encodeURIComponent(username) + "&wm=XhJGW";
         return \`
           <article class="card">
+            <a class="card-media" href="\${path}">
+              <img src="\${img}" alt="\${displayName}">
+            </a>
             <div class="card-body">
               <h3><a href="\${path}">\${displayName}</a></h3>
               <div class="tags">\${tagHtml}</div>
+              <div class="cta">
+                <a class="btn" href="\${chatUrl}" target="_blank" rel="noopener">Jetzt chatten</a>
+              </div>
             </div>
           </article>
         \`;
@@ -207,6 +223,8 @@ function modelPage(room) {
   const displayName = room.display_name || username;
   const canonical = `/models/${encodeURIComponent(username)}/`;
   const description = modelDescriptionGerman(displayName);
+  const img = room.image_url || room.img || room.image || room.thumbnail_url || `https://chaturbate.com/in/roomimage/${encodeURIComponent(username)}.jpg`;
+  const chatUrl = `https://chaturbate.com/in/?track=default&room=${encodeURIComponent(username)}&wm=XhJGW`;
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Person",
@@ -229,6 +247,10 @@ function modelPage(room) {
     <main class="container">
       <h1>${escapeHtml(displayName)}</h1>
       <p class="lead">${escapeHtml(description)}</p>
+      <div class="profile">
+        <img class="avatar" src="${img}" alt="${escapeHtml(displayName)}">
+        <div class="cta"><a class="btn" href="${chatUrl}" target="_blank" rel="noopener">Jetzt chatten</a></div>
+      </div>
       <div class="player">
         <iframe src="${embedSrc}" allowfullscreen loading="lazy"></iframe>
       </div>
