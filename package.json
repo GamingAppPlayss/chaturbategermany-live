@@ -1,0 +1,10 @@
+{
+  "name": "chaturbategermany-live",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Statische Seite mit Chaturbate API",
+  "scripts": {
+    "build": "node scripts/generate.js"
+  }
+}

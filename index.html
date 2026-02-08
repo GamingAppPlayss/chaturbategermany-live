@@ -1,0 +1,102 @@
+<!doctype html>
+    <html lang="de">
+      <head>
+        
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Best Chaturbate Models – Chaturbate Germany</title>
+    <meta name="description" content="Entdecke die besten Chaturbate-Modelle. Live-Cams, deutsche Übersichten und komfortable Navigation.">
+    <link rel="canonical" href="https://www.chaturbategermany.live/">
+    <link rel="preconnect" href="https://chaturbate.com">
+    <link rel="dns-prefetch" href="https://chaturbate.com">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Best Chaturbate Models – Chaturbate Germany">
+    <meta property="og:description" content="Entdecke die besten Chaturbate-Modelle. Live-Cams, deutsche Übersichten und komfortable Navigation.">
+    <meta property="og:url" content="https://www.chaturbategermany.live/">
+    <meta property="og:site_name" content="Chaturbate Germany">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Best Chaturbate Models – Chaturbate Germany">
+    <meta name="twitter:description" content="Entdecke die besten Chaturbate-Modelle. Live-Cams, deutsche Übersichten und komfortable Navigation.">
+    <link rel="stylesheet" href="/assets/style.css">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Chaturbate Germany","url":"https://www.chaturbategermany.live/","inLanguage":"de"}</script>
+  
+      </head>
+      <body>
+        
+    
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="/">Chaturbate Germany</a>
+        <nav class="nav">
+          <a href="/">Startseite</a>
+          <a href="/tags/">Tags</a>
+        </nav>
+      </div>
+    </header>
+  
+    <main class="container">
+      <h1>Best Chaturbate Models</h1>
+      <div id="models-grid" class="grid"></div>
+      <div class="actions">
+        <button id="loadMore">Mehr laden</button>
+      </div>
+      <section class="about">
+        <h2>Chaturbate</h2>
+        <p>Chaturbate ist ein interaktiver Live-Videochat für Erwachsene, in dem Performer in Echtzeit streamen. Nutzer können Shows entdecken, mit Modellen interagieren und eine vielfältige Auswahl an Kategorien genießen.</p>
+      </section>
+    </main>
+    
+    <footer class="site-footer">
+      <div class="container">
+        <p>© 2026 Chaturbate Germany</p>
+      </div>
+    </footer>
+  
+    <script>
+      const API_URL = "https://chaturbate.com/affiliates/api/onlinerooms/?format=json&wm=XhJGW";
+      const PAGE_SIZE = 40;
+      let allRooms = [];
+      let rendered = 0;
+      function roomCard(room) {
+        const username = room.username || room.name || "";
+        const displayName = room.display_name || username;
+        const path = "/models/" + encodeURIComponent(username) + "/";
+        const tags = Array.isArray(room.tags) ? room.tags : [];
+        const tagHtml = tags.slice(0, 5).map(t => "<span class=\"tag\">" + t + "</span>").join("");
+        return `
+          <article class="card">
+            <div class="card-body">
+              <h3><a href="${path}">${displayName}</a></h3>
+              <div class="tags">${tagHtml}</div>
+            </div>
+          </article>
+        `;
+      }
+      function renderMore() {
+        const target = document.getElementById("models-grid");
+        const next = allRooms.slice(rendered, rendered + PAGE_SIZE);
+        next.forEach(r => {
+          const div = document.createElement("div");
+          div.className = "grid-item";
+          div.innerHTML = roomCard(r);
+          target.appendChild(div);
+        });
+        rendered += next.length;
+        if (rendered >= allRooms.length) {
+          document.getElementById("loadMore").disabled = true;
+        }
+      }
+      fetch(API_URL).then(r => r.json()).then(data => {
+        const rooms = data.rooms || data || [];
+        allRooms = rooms;
+        renderMore();
+      }).catch(() => {
+        const target = document.getElementById("models-grid");
+        target.innerHTML = "<p>Fehler beim Laden der Daten.</p>";
+        document.getElementById("loadMore").disabled = true;
+      });
+      document.getElementById("loadMore").addEventListener("click", renderMore);
+    </script>
+  
+      </body>
+    </html>
